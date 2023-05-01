@@ -11,7 +11,7 @@ Checkout the repo and move to the directory
 
 ```
 git clone https://github.com/belwalrohit642/ci-cd-project/
-cd ci-cd-project/java-maven-sonar-argocd-helm-k8s/sprint-boot-app
+cd ci-cd-project/java-maven-sonar-argocd-helm-k8s/spring-boot-app
 ```
 
 Execute the Maven targets to generate the artifacts
