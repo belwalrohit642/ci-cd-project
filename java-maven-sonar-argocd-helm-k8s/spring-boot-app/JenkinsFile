@@ -9,7 +9,7 @@ pipeline {
         stage('Fix Permissions') {
             steps {
                 script {
-                    sh 'chown -R jenkins:jenkins /var/lib/jenkins/workspace/CI-CD for Spring3Hibernate'
+                     sh 'chown -R jenkins:jenkins "/var/lib/jenkins/workspace/CI-CD for Spring3Hibernate"'
                 }
             }
         }
