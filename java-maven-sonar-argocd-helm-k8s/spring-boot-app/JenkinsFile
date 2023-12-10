@@ -15,7 +15,6 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                cleanWs()
                 sh 'echo passed'
                 //git credentialsId: 'github', url: 'https://github.com/belwalrohit642/ci-cd-project.git'
             }
