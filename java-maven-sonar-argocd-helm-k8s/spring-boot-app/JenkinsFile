@@ -5,13 +5,22 @@ pipeline {
       args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
     }
   }
-  stages {
-    stage('Checkout') {
-      steps {
-        sh 'echo passed'
-        //git credentialsId: 'github', url: 'https://github.com/belwalrohit642/ci-cd-project.git'
-      }
-    }
+    stages {
+        stage('Fix Permissions') {
+            steps {
+                script {
+                    sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/workspace/CI-CD for Spring3Hibernate'
+                }
+            }
+        }
+        stage('Checkout') {
+            steps {
+                cleanWs()
+                sh 'echo passed'
+                //git credentialsId: 'github', url: 'https://github.com/belwalrohit642/ci-cd-project.git'
+            }
+        }
+  
     stage('Build and Test') {
       steps {
         sh 'ls -ltr'
