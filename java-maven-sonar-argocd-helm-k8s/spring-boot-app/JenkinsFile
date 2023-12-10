@@ -6,13 +6,6 @@ pipeline {
     }
   }
     stages {
-        stage('Fix Permissions') {
-            steps {
-                script {
-                     sh 'chown -R jenkins:jenkins "/var/lib/jenkins/workspace/CI-CD for Spring3Hibernate"'
-                }
-            }
-        }
         stage('Checkout') {
             steps {
                 sh 'echo passed'
