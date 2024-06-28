@@ -1,4 +1,4 @@
-pipeline {
+/*pipeline {
   agent {
     docker {
       image 'belwalrohit642/maven-docker-agent:latest'
@@ -48,5 +48,80 @@ pipeline {
       }
     }
     */
+  }
+}
+*/
+
+pipeline {
+  agent {
+    kubernetes {
+      label 'Kaniko-Volume'
+      yaml """
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: jnlp
+    workingDir: /home/jenkins
+  - name: kaniko
+    workingDir: /home/jenkins
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+    - name: jenkins-docker-cfg
+      mountPath: /kaniko/.docker
+  - name: kubectl
+    image: belwalrohit642/custom-image-kubectl:v1
+    command:
+    - "/bin/bash"
+    - "-c"
+    - "sleep 99d"
+  volumes:
+  - name: jenkins-docker-cfg
+    projected:
+      sources:
+      - secret:
+          name: docker-credentials
+          items:
+          - key: .dockerconfigjson
+            path: config.json
+"""
+    }
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        sh 'echo "Passed"'
+        // git credentialsId: 'github', url: 'https://github.com/belwalrohit642/ci-cd-project.git'
+      }
+    }
+
+    stage('Build and Test') {
+      agent {
+        docker {
+          image 'belwalrohit642/maven-docker-agent:latest'
+          args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket
+        }
+      }
+      steps {
+        sh 'ls -ltr'
+        sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
+      }
+    }
+
+    stage('Static Code Analysis') {
+      environment {
+        SONAR_URL = "http://k8s-sonarqub-sonarqub-0be5dc0366-9b4bbb1de60cb47a.elb.us-east-1.amazonaws.com/"
+      }
+      steps {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+          sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+        }
+      }
+    }
   }
 }
