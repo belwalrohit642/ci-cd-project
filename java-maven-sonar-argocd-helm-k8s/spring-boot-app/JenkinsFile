@@ -47,7 +47,7 @@ spec:
         stage('Checkout') {
             steps {
                 echo "Checking out code"
-            //    checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/belwalrohit642/ci-cd-project.git']]])
+                // checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/belwalrohit642/ci-cd-project.git']]])
             }
         }
 
@@ -63,9 +63,11 @@ spec:
 
         stage('Static Code Analysis') {
             steps {
-                echo "Running static code analysis"
-                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-                    sh "cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL"
+                container('maven') { // Specify the maven container here
+                    echo "Running static code analysis"
+                    withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+                        sh "cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL"
+                    }
                 }
             }
         }
