@@ -27,9 +27,6 @@ spec:
       limits:
         memory: "1024Mi"
         cpu: "1"
-  - name: kubectl
-    image: belwalrohit642/custom-image-kubectl:v1
-    command: ["/bin/bash", "-c", "sleep 99d"]
   - name: maven
     image: maven:3.8.4-openjdk-11
     command: ["/bin/sh", "-c", "cat"]  // Keep the container running
