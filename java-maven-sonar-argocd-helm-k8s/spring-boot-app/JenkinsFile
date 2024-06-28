@@ -10,6 +10,7 @@ metadata:
 spec:
   containers:
   - name: jnlp
+    image: jenkins/inbound-agent:4.10-3
     workingDir: /home/jenkins
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
@@ -29,6 +30,20 @@ spec:
   - name: kubectl
     image: belwalrohit642/custom-image-kubectl:v1
     command: ["/bin/bash", "-c", "sleep 99d"]
+  - name: maven
+    image: maven:3.8.4-openjdk-11
+    command: ["/bin/sh", "-c", "cat"]  // Keep the container running
+    tty: true
+    volumeMounts:
+    - name: jenkins-docker-cfg
+      mountPath: /kaniko/.docker
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "0.5"
+      limits:
+        memory: "1024Mi"
+        cpu: "1"
   volumes:
   - name: jenkins-docker-cfg
     projected:
@@ -50,22 +65,17 @@ spec:
         stage('Checkout') {
             steps {
                 echo "Checking out code"
-                // Example: git checkout step
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/belwalrohit642/ci-cd-project.git']]])
             }
         }
 
         stage('Build and Test') {
-            agent {
-                docker {
-                    image 'belwalrohit642/maven-docker-agent:latest'
-                    args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             steps {
-                echo "Building and testing"
-                sh 'ls -ltr'
-                sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
+                container('maven') {
+                    echo "Building and testing"
+                    sh 'ls -ltr'
+                    sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
+                }
             }
         }
 
