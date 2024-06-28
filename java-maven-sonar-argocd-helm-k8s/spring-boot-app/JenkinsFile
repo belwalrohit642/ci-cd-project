@@ -29,7 +29,7 @@ spec:
         cpu: "1"
   - name: maven
     image: maven:3.8.4-openjdk-11
-    command: ["/bin/sh", "-c", "cat"]  // Keep the container running
+    command: ["/bin/sh", "-c", "cat"]  # Keep the container running
     tty: true
     volumeMounts:
     - name: jenkins-docker-cfg
@@ -62,7 +62,7 @@ spec:
         stage('Checkout') {
             steps {
                 echo "Checking out code"
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/belwalrohit642/ci-cd-project.git']]])
+            //    checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/belwalrohit642/ci-cd-project.git']]])
             }
         }
 
