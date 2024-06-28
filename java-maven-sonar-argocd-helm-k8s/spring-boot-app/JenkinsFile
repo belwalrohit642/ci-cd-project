@@ -20,7 +20,7 @@ spec:
     - name: jenkins-docker-cfg
       mountPath: /kaniko/.docker
   - name: maven
-    image: belwalrohit642/maven-docker-agent:latest
+    image: maven:3.8.4-openjdk-17
     command: ["/bin/sh", "-c", "cat"]  # Keep the container running
     tty: true
     volumeMounts:
@@ -56,7 +56,7 @@ spec:
                 container('maven') {
                     echo "Building and testing"
                     sh 'ls -ltr'
-                    sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
+                    sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package -Dmaven.compiler.source=17 -Dmaven.compiler.target=17'
                 }
             }
         }
