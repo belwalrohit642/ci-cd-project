@@ -1,58 +1,19 @@
 pipeline {
   agent {
-    kubernetes {
-      label 'Kaniko-Volumes'
-      yaml """
-kind: Pod
-metadata:
-  name: kaniko
-spec:
-  containers:
-  - name: jnlp
-    workingDir: /home/jenkins
-  - name: kaniko
-    workingDir: /home/jenkins
-    image: gcr.io/kaniko-project/executor:debug
-    imagePullPolicy: Always
-    command:
-    - /busybox/cat
-    tty: true
-    volumeMounts:
-    - name: jenkins-docker-cfg
-      mountPath: /kaniko/.docker
-  - name: kubectl
-    image: belwalrohit642/custom-image-kubectl:v1
-    command:
-    - "/bin/bash"
-    - "-c"
-    - "sleep 99d"
-  volumes:
-  - name: jenkins-docker-cfg
-    projected:
-      sources:
-      - secret:
-          name: docker-credentials
-          items:
-          - key:  config.json
-            path: .dockerconfigjson
-"""
-    }
+    docker {
+      image 'belwalrohit642/maven-docker-agent:latest'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+    }   
   }
   stages {
     stage('Checkout') {
       steps {
-        sh 'echo "Passed"'
-        // git credentialsId: 'github', url: 'https://github.com/belwalrohit642/ci-cd-project.git'
+        sh 'echo passed'
+        //git credentialsId: 'github', url: 'https://github.com/belwalrohit642/ci-cd-project.git'
       }
     }
 
     stage('Build and Test') {
-      agent {
-        docker {
-          image 'belwalrohit642/maven-docker-agent:latest'
-          args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket
-        }
-      }
       steps {
         sh 'ls -ltr'
         sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
@@ -69,5 +30,5 @@ spec:
         }
       }
     }
-  }
-}
+
+  }}
