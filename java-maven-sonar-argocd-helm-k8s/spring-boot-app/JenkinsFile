@@ -12,21 +12,23 @@ spec:
   - name: jnlp
     workingDir: /home/jenkins
   - name: kaniko
-    workingDir: /home/jenkins
     image: gcr.io/kaniko-project/executor:debug
     imagePullPolicy: Always
-    command:
-    - /busybox/cat
+    command: ["/busybox/cat"]
     tty: true
     volumeMounts:
     - name: jenkins-docker-cfg
       mountPath: /kaniko/.docker
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "0.5"
+      limits:
+        memory: "1024Mi"
+        cpu: "1"
   - name: kubectl
     image: belwalrohit642/custom-image-kubectl:v1
-    command:
-    - "/bin/bash"
-    - "-c"
-    - "sleep 99d"
+    command: ["/bin/bash", "-c", "sleep 99d"]
   volumes:
   - name: jenkins-docker-cfg
     projected:
@@ -39,12 +41,17 @@ spec:
 """
         }
     }
+
+    environment {
+        SONAR_URL = "http://k8s-sonarqub-sonarqub-0be5dc0366-9b4bbb1de60cb47a.elb.us-east-1.amazonaws.com/"
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 echo "Checking out code"
                 // Example: git checkout step
-                // checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/belwalrohit642/ci-cd-project.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/belwalrohit642/ci-cd-project.git']]])
             }
         }
 
@@ -65,9 +72,6 @@ spec:
         stage('Static Code Analysis') {
             steps {
                 echo "Running static code analysis"
-                environment {
-                    SONAR_URL = "http://k8s-sonarqub-sonarqub-0be5dc0366-9b4bbb1de60cb47a.elb.us-east-1.amazonaws.com/"
-                }
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
                     sh "cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL"
                 }
