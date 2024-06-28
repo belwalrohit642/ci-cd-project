@@ -20,7 +20,7 @@ spec:
     - name: jenkins-docker-cfg
       mountPath: /kaniko/.docker
   - name: maven
-    image: maven:3.8.4-openjdk-11
+    image: belwalrohit642/maven-docker-agent:latest
     command: ["/bin/sh", "-c", "cat"]  # Keep the container running
     tty: true
     volumeMounts:
