@@ -41,11 +41,8 @@ spec:
     }
     stages {
         stage('Checkout') {
-            agent {
-                label 'Kaniko-Volume'
-            }
             steps {
-                sh 'echo "Passed"'
+                echo "Checking out code"
                 // Example: git checkout step
                 // checkout([$class: 'GitSCM', branches: [[name: '*/master']], userRemoteConfigs: [[url: 'https://github.com/belwalrohit642/ci-cd-project.git']]])
             }
@@ -59,19 +56,18 @@ spec:
                 }
             }
             steps {
+                echo "Building and testing"
                 sh 'ls -ltr'
                 sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
             }
         }
 
         stage('Static Code Analysis') {
-            agent {
-                label 'Kaniko-Volume'
-            }
-            environment {
-                SONAR_URL = "http://k8s-sonarqub-sonarqub-0be5dc0366-9b4bbb1de60cb47a.elb.us-east-1.amazonaws.com/"
-            }
             steps {
+                echo "Running static code analysis"
+                environment {
+                    SONAR_URL = "http://k8s-sonarqub-sonarqub-0be5dc0366-9b4bbb1de60cb47a.elb.us-east-1.amazonaws.com/"
+                }
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
                     sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
                 }
