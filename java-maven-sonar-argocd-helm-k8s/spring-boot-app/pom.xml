@@ -22,8 +22,6 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <java.version>11</java.version>
-        <sonar.analysis.mode>preview</sonar.analysis.mode>
-        <sonar.issuesReport.html.enable>true</sonar.issuesReport.html.enable>
     </properties>
 
     <dependencies>
