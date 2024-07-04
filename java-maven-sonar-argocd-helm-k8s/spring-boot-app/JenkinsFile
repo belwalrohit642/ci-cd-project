@@ -40,7 +40,7 @@ spec:
     }
 
     environment {
-        SONAR_URL = "http://3.88.128.97:9000"
+        SONAR_URL = "http://k8s-sonarqub-sonarqub-77b97fd75e-9d56469349b2a828.elb.us-east-1.amazonaws.com/"
     }
 
     stages {
